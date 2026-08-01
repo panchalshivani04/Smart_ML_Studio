@@ -111,6 +111,6 @@ python -m streamlit run app.py
 
 **Shivani Panchal**
 
-Computer Science & Engineering Student
+Computer Science & Technology Student
 
 If you found this project useful, consider giving it a ⭐ on GitHub.
