@@ -54,8 +54,6 @@ Smart_ML_Studio/
 ├── app.py
 ├── pages/
 ├── utils/
-├── datasets/
-├── models/
 ├── requirements.txt
 └── README.md
 ```
