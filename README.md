@@ -67,7 +67,7 @@ Smart_ML_Studio/
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Smart_ML_Studio.git
+git clone https://github.com/panchalshivani04/Smart_ML_Studio.git
 ```
 
 Navigate to the project
