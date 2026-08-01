@@ -26,10 +26,6 @@ if "trained_models" not in st.session_state:
 if "best_model" not in st.session_state:
     st.session_state.best_model = None
 
-# --- Ensure Directories Exist ---
-os.makedirs("models", exist_ok=True)
-os.makedirs("datasets", exist_ok=True)
-
 # --- Navigation Setup ---
 # Using Streamlit 1.36+ native navigation
 pages = {
