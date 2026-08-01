@@ -210,7 +210,7 @@ Smart_ML_Studio/
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Smart_ML_Studio.git
+git clone https://github.com/panchalshivani04/Smart_ML_Studio.git
 ```
 
 Go to the project directory
@@ -311,12 +311,6 @@ Feel free to fork the repository and submit a Pull Request.
 
 ---
 
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
 # 👩‍💻 Developer
 
 **Shivani Panchal**
@@ -325,8 +319,7 @@ Computer Science & Engineering Student
 
 GitHub: https://github.com/panchalshivani04
 
-LinkedIn: https://linkedin.com/in/YOUR_PROFILE
-
+LinkedIn: https://linkedin.com/in/shivani-panchal-cst
 ---
 
 ⭐ If you found this project useful, consider giving it a star!
