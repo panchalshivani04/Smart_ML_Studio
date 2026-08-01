@@ -1,6 +1,6 @@
 # 🧠 Smart ML Studio
 
-An interactive machine learning web application built with **Python, Streamlit, and Scikit-learn** that enables users to upload datasets, preprocess data, train and compare regression and classification models, tune hyperparameters, visualize results, and generate predictions through an intuitive no-code interface.
+An interactive **Machine Learning Studio** built with **Python, Streamlit, and Scikit-learn** that enables users to upload datasets, preprocess data, train and compare regression and classification models, tune hyperparameters, visualize performance, and generate predictions through an intuitive no-code interface.
 
 ---
 
@@ -8,11 +8,11 @@ An interactive machine learning web application built with **Python, Streamlit, 
 
 - 📂 Upload CSV datasets
 - ⚙️ Select input and target columns
-- 🔍 Automatic regression/classification detection
-- 🤖 Train multiple machine learning models
-- 📊 Compare model performance across algorithms
-- 🎛 Customize hyperparameters
-- 📈 Interactive visualizations
+- 🔍 Automatic Regression/Classification detection
+- 🤖 Train individual machine learning models
+- 📊 Compare multiple machine learning algorithms
+- 🎛️ Customize model hyperparameters
+- 📈 Interactive visualizations and performance metrics
 - 🔮 Generate predictions on new data
 - 💾 Download trained models and prediction results
 
@@ -20,47 +20,62 @@ An interactive machine learning web application built with **Python, Streamlit, 
 
 ## 🤖 Supported Models
 
-### Regression
+### Regression Models
 - Linear Regression
 - Multiple Linear Regression
 - Polynomial Regression
 
-### Classification
+### Classification Models
 - K-Nearest Neighbors (KNN)
 - Support Vector Machine (SVM)
-- Decision Tree
-- Random Forest
+- Decision Tree Classifier
+- Random Forest Classifier
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Python
-- Streamlit
-- Scikit-learn
-- Pandas
-- NumPy
-- Plotly
-- Matplotlib
-- Joblib
+| Category | Technologies |
+|----------|--------------|
+| **Programming Language** | Python |
+| **Frontend** | Streamlit |
+| **Machine Learning** | Scikit-learn |
+| **Data Processing** | Pandas, NumPy |
+| **Visualization** | Plotly, Matplotlib |
+| **Model Persistence** | Joblib |
 
 ---
 
-## 📁 Project Structure
+## 📂 Project Structure
 
 ```text
 Smart_ML_Studio/
 │
 ├── app.py
-├── pages/
-├── utils/
 ├── requirements.txt
-└── README.md
+├── README.md
+│
+├── pages/
+│   ├── Home.py
+│   ├── Upload_Data.py
+│   ├── Model_Training.py
+│   ├── Prediction.py
+│   ├── Visualization.py
+│   ├── Comparison.py
+│   └── About.py
+│
+└── utils/
+    ├── preprocessing.py
+    ├── regression.py
+    ├── classification.py
+    ├── metrics.py
+    ├── visualization.py
+    └── helper.py
 ```
 
 ---
 
-## ⚙️ Installation
+## 🚀 Installation
 
 Clone the repository
 
@@ -68,13 +83,13 @@ Clone the repository
 git clone https://github.com/panchalshivani04/Smart_ML_Studio.git
 ```
 
-Navigate to the project
+Navigate to the project directory
 
 ```bash
 cd Smart_ML_Studio
 ```
 
-Install dependencies
+Install the required dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -86,7 +101,7 @@ Run the application
 streamlit run app.py
 ```
 
-or
+If the above command doesn't work, use:
 
 ```bash
 python -m streamlit run app.py
@@ -94,14 +109,47 @@ python -m streamlit run app.py
 
 ---
 
+## 📌 Application Workflow
+
+```text
+Upload Dataset
+       │
+       ▼
+Select Input & Target Columns
+       │
+       ▼
+Choose Regression or Classification
+       │
+       ▼
+Select Single Model
+        or
+Compare All Models
+       │
+       ▼
+Train Model(s)
+       │
+       ▼
+Evaluate Performance
+       │
+       ▼
+Generate Predictions
+       │
+       ▼
+Visualize Results
+```
+
+---
+
 ## 🚀 Future Enhancements
 
 - Cross Validation
-- XGBoost & LightGBM
+- XGBoost & LightGBM Integration
 - SHAP Explainability
-- AutoML Recommendations
+- AutoML Model Recommendation
 - Neural Network Support
 - Cloud Deployment
+- User Authentication
+- Model Versioning
 
 ---
 
@@ -109,6 +157,12 @@ python -m streamlit run app.py
 
 **Shivani Panchal**
 
-Computer Science & Technology Student
+Bachelor of Engineering (Computer Science & Engineering)
 
-If you found this project useful, consider giving it a ⭐ on GitHub.
+GitHub: https://github.com/panchalshivani04
+
+LinkedIn: https://linkedin.com/in/shivani-panchal-cst
+
+---
+
+⭐ If you found this project useful, consider giving it a **Star** on GitHub!
