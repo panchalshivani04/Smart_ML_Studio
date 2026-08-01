@@ -270,38 +270,6 @@ Visualize Results
 
 ---
 
-# 📸 Screenshots
-
-## Home Page
-
-> Add screenshot here
-
----
-
-## Dataset Upload
-
-> Add screenshot here
-
----
-
-## Model Comparison
-
-> Add screenshot here
-
----
-
-## Prediction
-
-> Add screenshot here
-
----
-
-## Visualizations
-
-> Add screenshot here
-
----
-
 # 🎯 Future Improvements
 
 - Cross Validation
@@ -355,7 +323,7 @@ This project is licensed under the MIT License.
 
 Computer Science & Engineering Student
 
-GitHub: https://github.com/YOUR_USERNAME
+GitHub: https://github.com/panchalshivani04
 
 LinkedIn: https://linkedin.com/in/YOUR_PROFILE
 
