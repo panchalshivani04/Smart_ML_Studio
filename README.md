@@ -157,7 +157,7 @@ Visualize Results
 
 **Shivani Panchal**
 
-Bachelor of Engineering (Computer Science & Engineering)
+Bachelor of Engineering (Computer Science & Technology)
 
 GitHub: https://github.com/panchalshivani04
 
