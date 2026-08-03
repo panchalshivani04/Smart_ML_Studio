@@ -4,7 +4,13 @@ import joblib
 import io
 
 def show_prediction():
-    st.title("🔮 Make Predictions")
+    st.write("")
+    st.title("🧠 Inference Studio")
+    st.markdown(
+        "<p style='font-size: 1.1rem; color: #666;'>Deploy your trained models to generate predictions on new data.</p>", 
+        unsafe_allow_html=True
+    )
+    st.write("")
     
     # Check if models have been trained
     if "trained_models" not in st.session_state or not st.session_state.trained_models:
@@ -16,12 +22,8 @@ def show_prediction():
     task_type = st.session_state.task_type
     trained_models = st.session_state.trained_models
     
-    st.markdown("Use a trained model to make predictions on new data. The input form below is dynamically generated based on your selected features.")
-    
-    col1, col2 = st.columns([1, 2])
-    
-    # --- Model Selection ---
-    with col1:
+    # --- 1. Model Selection ---
+    with st.container(border=True):
         st.subheader("1. Select Model")
         model_names = list(trained_models.keys())
         
@@ -30,36 +32,22 @@ def show_prediction():
         if st.session_state.get('best_model') in model_names:
             default_index = model_names.index(st.session_state.best_model)
             
-        selected_model_name = st.selectbox("Choose a trained model", model_names, index=default_index)
+        selected_model_name = st.selectbox("Choose a trained model", model_names, index=default_index, label_visibility="collapsed")
         
         selected_pipeline = trained_models[selected_model_name]["pipeline"]
-        
-        # --- Download Model ---
-        st.markdown("---")
-        st.subheader("📥 Export Model")
-        st.caption("Download the complete pipeline (preprocessing + model) for deployment.")
-        
-        # Serialize model in memory
-        model_buffer = io.BytesIO()
-        joblib.dump(selected_pipeline, model_buffer)
-        model_buffer.seek(0)
-        
-        st.download_button(
-            label=f"Download {selected_model_name} (.pkl)",
-            data=model_buffer,
-            file_name=f"{selected_model_name.replace(' ', '_').lower()}_pipeline.pkl",
-            mime="application/octet-stream"
-        )
-        
-    # --- Dynamic Input Form ---
-    with col2:
+            
+    st.write("")
+            
+    # --- 2. Dynamic Input Form ---
+    with st.container(border=True):
         st.subheader("2. Enter Feature Values")
+        st.write("")
         
         with st.form("prediction_form"):
             user_inputs = {}
             
-            # Create a 2-column layout for the form
-            form_col1, form_col2 = st.columns(2)
+            # Create a 2-column layout for the form with gap
+            form_col1, form_col2 = st.columns(2, gap="large")
             
             for idx, feature in enumerate(features):
                 # Alternate between columns for better layout
@@ -85,19 +73,18 @@ def show_prediction():
                             options=unique_values
                         )
                         
-            submit_button = st.form_submit_button(label="Generate Prediction 🚀", type="primary")
+            st.write("")
+            submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
+            with submit_col2:
+                submit_button = st.form_submit_button(label="Generate Prediction 🚀", type="primary", use_container_width=True)
 
-    st.divider()
-    
     # --- Execute Prediction ---
     if submit_button:
-        st.subheader("🎯 Prediction Result")
-        
-        # Convert dictionary to DataFrame (must match training feature shape)
+        st.write("")
         input_df = pd.DataFrame([user_inputs])
         
         try:
-            with st.spinner("Processing..."):
+            with st.spinner("Processing prediction..."):
                 # Make prediction
                 prediction = selected_pipeline.predict(input_df)[0]
                 
@@ -108,43 +95,78 @@ def show_prediction():
                     confidence = max(proba) * 100
                     
             # Display results beautifully
-            res_col1, res_col2 = st.columns(2)
-            
-            with res_col1:
-                st.success("Prediction Generated Successfully!")
-                if task_type == "Regression":
-                    st.metric(label="Predicted Value", value=f"{prediction:,.4f}")
-                else:
-                    st.metric(label="Predicted Class", value=str(prediction))
-                    
-            with res_col2:
-                if confidence is not None:
-                    st.info("Model Confidence")
-                    st.metric(label="Confidence Score", value=f"{confidence:.2f}%")
-                elif task_type == "Classification":
-                    st.info("Confidence score not supported by this algorithm (e.g., standard SVM without probability).")
-                else:
-                    st.info("Confidence score is not applicable for Regression tasks.")
-                    
-            # Display the DataFrame that was passed to the model
-            with st.expander("View Input Data"):
-                st.dataframe(input_df, hide_index=True)
-
-            result_df = input_df.copy()
-            result_df['Predicted_Target'] = prediction
-            if confidence is not None:
-                result_df['Confidence_Score'] = f"{confidence:.2f}%"
+            with st.container(border=True):
+                st.subheader("🎯 Prediction Result")
+                st.write("")
                 
-            csv_pred = result_df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Download Prediction Result (.csv)",
-                data=csv_pred,
-                file_name="prediction_result.csv",
-                mime="text/csv",
-            )
+                res_col1, res_col2 = st.columns(2, gap="large")
+                
+                with res_col1:
+                    if task_type == "Regression":
+                        st.metric(label="Predicted Value", value=f"{prediction:,.4f}")
+                    else:
+                        st.metric(label="Predicted Class", value=str(prediction))
+                        
+                with res_col2:
+                    if confidence is not None:
+                        st.metric(label="Confidence Score", value=f"{confidence:.2f}%")
+                    elif task_type == "Classification":
+                        st.info("Confidence score not supported by this algorithm.")
+                    else:
+                        st.info("Confidence score is not applicable for Regression.")
+                        
+                st.divider()
+                
+                # Expandable dataframe and download button
+                with st.expander("🔍 View Input Data"):
+                    st.dataframe(input_df, hide_index=True, use_container_width=True)
+                    
+                result_df = input_df.copy()
+                result_df['Predicted_Target'] = prediction
+                if confidence is not None:
+                    result_df['Confidence_Score'] = f"{confidence:.2f}%"
+                    
+                csv_pred = result_df.to_csv(index=False).encode('utf-8')
+                
+                st.write("")
+                dl_col1, dl_col2, dl_col3 = st.columns([1, 2, 1])
+                with dl_col2:
+                    st.download_button(
+                        label="📥 Download Result (.csv)",
+                        data=csv_pred,
+                        file_name="prediction_result.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
                 
         except Exception as e:
             st.error(f"An error occurred during prediction. Details: {e}")
+
+    st.write("")
+    
+    # --- 3. Export Pipeline ---
+    with st.container(border=True):
+        st.subheader("📦 Export Pipeline")
+        st.markdown(
+            "<p style='font-size: 0.85rem; color: #666;'>Download the complete trained pipeline (.pkl) for production deployment.</p>", 
+            unsafe_allow_html=True
+        )
+        
+        # Serialize model in memory
+        model_buffer = io.BytesIO()
+        joblib.dump(selected_pipeline, model_buffer)
+        model_buffer.seek(0)
+        
+        st.write("")
+        exp_col1, exp_col2, exp_col3 = st.columns([1, 2, 1])
+        with exp_col2:
+            st.download_button(
+                label=f"Download {selected_model_name} (.pkl)",
+                data=model_buffer,
+                file_name=f"{selected_model_name.replace(' ', '_').lower()}_pipeline.pkl",
+                mime="application/octet-stream",
+                use_container_width=True
+            )
 
 if __name__ == "__main__":
     show_prediction()
