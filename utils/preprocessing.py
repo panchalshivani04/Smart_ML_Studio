@@ -1,8 +1,4 @@
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, OrdinalEncoder
 
 def detect_task_type(df: pd.DataFrame, target_col: str) -> str:
     """
@@ -15,11 +11,20 @@ def detect_task_type(df: pd.DataFrame, target_col: str) -> str:
     else:
         return "Regression"
 
+
 def build_preprocessor(numeric_features: list, categorical_features: list, 
                        impute_strategy: str, encode_strategy: str, scale_strategy: str):
     """
     Builds a Scikit-Learn ColumnTransformer for preprocessing data.
     """
+    # FIX: Lazy Import. 
+    # Moving these here prevents the UI from freezing when the Upload Data page loads.
+    # Scikit-learn will now only be imported when a model is actually being trained.
+    from sklearn.compose import ColumnTransformer
+    from sklearn.pipeline import Pipeline
+    from sklearn.impute import SimpleImputer
+    from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, OrdinalEncoder
+
     # --- Numeric Pipeline ---
     num_steps = []
     if impute_strategy in ['Mean', 'Median', 'Most frequent']:
