@@ -11,7 +11,7 @@ def get_dataframe_info(df: pd.DataFrame) -> dict:
         dict: A dictionary containing rows, columns, memory usage, etc.
     """
     # Calculate memory usage in Megabytes
-    memory_usage = df.memory_usage(deep=True).sum() / (1024 * 1024)
+    memory_usage = df.memory_usage(deep=False).sum() / (1024 * 1024)
     
     info = {
         "rows": df.shape[0],

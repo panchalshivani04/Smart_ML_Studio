@@ -22,7 +22,6 @@ def show_upload_data():
                 df = pd.read_csv(uploaded_file)
                 st.session_state.raw_data = df
                 st.session_state.uploaded_filename = uploaded_file.name
-                # Reset downstream session variables
                 st.session_state.processed_data = None
                 st.session_state.best_model = None
                 
@@ -85,7 +84,7 @@ def show_upload_data():
             st.divider()
             
             # ==========================================
-            # CONFIGURATION & PREPROCESSING (SaaS Styling)
+            # CONFIGURATION & PREPROCESSING
             # ==========================================
             st.header("⚙️ Configuration Studio")
             st.markdown("<p style='color: #666;'>Define your target, select features, and tune preprocessing steps.</p>", unsafe_allow_html=True)
@@ -104,13 +103,22 @@ def show_upload_data():
                     task_index = 0 if detected_task == "Classification" else 1
                     task_type = st.radio("Task Type", ["Classification", "Regression"], index=task_index)
                     
+                    # FIX: Identify if the chosen target is categorical
+                    is_categorical_target = pd.api.types.is_object_dtype(df[target_col]) or \
+                                            pd.api.types.is_bool_dtype(df[target_col]) or \
+                                            isinstance(df[target_col].dtype, pd.CategoricalDtype)
+                                            
+                    # Dynamic warning if user chooses Regression on a Text/Bool column
+                    if task_type == "Regression" and is_categorical_target:
+                        st.warning(f"⚠️ Column '{target_col}' contains text or categories. Regression requires a continuous numeric target.")
+                    
                 with fs_col2:
                     default_features = [c for c in df.columns if c != target_col]
                     features = st.multiselect("Input Features (X)", df.columns, default=default_features)
             
             st.write("")
             
-            # 2. Preprocessing & Split Containers Side-by-Side
+            # 2. Preprocessing & Split Containers
             prep_col, split_col = st.columns(2, gap="large")
             
             with prep_col:
@@ -125,7 +133,7 @@ def show_upload_data():
                     st.subheader("3. Train-Test Split")
                     split_ratio = st.selectbox("Training Data Ratio", ["60%", "70%", "80%", "90%"], index=2)
                     random_state = st.number_input("Random State", min_value=0, max_value=9999, value=42, step=1)
-                    st.write("") # Alignment spacing
+                    st.write("")
                     shuffle_data = st.checkbox("Shuffle Data before splitting", value=True)
                     
             st.write("")
@@ -134,7 +142,11 @@ def show_upload_data():
             submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
             with submit_col2:
                 if st.button("✅ Save Configuration & Proceed", type="primary", use_container_width=True):
-                    if len(features) == 0:
+                    
+                    # FIX: Hard validation to prevent Regression on categorical targets
+                    if task_type == "Regression" and is_categorical_target:
+                        st.error(f"❌ Invalid Task: You cannot use a categorical target column ('{target_col}') for Regression. Please switch to Classification or select a numerical target.")
+                    elif len(features) == 0:
                         st.error("Please select at least one input feature.")
                     elif target_col in features:
                         st.error("Target column cannot be in the input features.")

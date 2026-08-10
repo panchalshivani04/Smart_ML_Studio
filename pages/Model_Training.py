@@ -32,8 +32,8 @@ def show_model_training():
     X = df[features]
     y = df[target_col]
     
-    numeric_features = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    categorical_features = X.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
+    categorical_features = X.select_dtypes(include=['object', 'category', 'bool', 'string']).columns.tolist()
+    numeric_features = [col for col in features if col not in categorical_features]
     
     # --- Configuration Overview Dashboard ---
     with st.container(border=True):
