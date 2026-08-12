@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
+from pandas.api.types import is_numeric_dtype, is_bool_dtype
 from utils.helper import get_dataframe_info
 from utils.preprocessing import detect_task_type
 
 def show_upload_data():
     st.write("")
-    st.title("Data Upload & Preparation")
+    st.title("📂 Data Upload & Preparation")
     st.markdown(
         "<p style='font-size: 1.1rem; color: #666;'>Upload your dataset, explore its health, and configure the preprocessing pipeline.</p>", 
         unsafe_allow_html=True
@@ -18,10 +19,22 @@ def show_upload_data():
     
     if uploaded_file is not None:
         try:
-            if st.session_state.raw_data is None or st.session_state.get('uploaded_filename') != uploaded_file.name:
+            # ROBUST UPLOAD CHECK: Compare both filename and file size to detect modified files with the same name
+            if (st.session_state.raw_data is None or 
+                st.session_state.get('uploaded_filename') != uploaded_file.name or 
+                st.session_state.get('uploaded_filesize') != uploaded_file.size):
+                
                 df = pd.read_csv(uploaded_file)
+                
+                if df.empty:
+                    st.error("The uploaded CSV file contains no data rows. Please upload a valid dataset.")
+                    return
+                    
                 st.session_state.raw_data = df
                 st.session_state.uploaded_filename = uploaded_file.name
+                st.session_state.uploaded_filesize = uploaded_file.size
+                
+                # Reset downstream session variables to prevent stale data contamination
                 st.session_state.processed_data = None
                 st.session_state.best_model = None
                 
@@ -103,12 +116,12 @@ def show_upload_data():
                     task_index = 0 if detected_task == "Classification" else 1
                     task_type = st.radio("Task Type", ["Classification", "Regression"], index=task_index)
                     
-                    # FIX: Identify if the chosen target is categorical
-                    is_categorical_target = pd.api.types.is_object_dtype(df[target_col]) or \
-                                            pd.api.types.is_bool_dtype(df[target_col]) or \
-                                            isinstance(df[target_col].dtype, pd.CategoricalDtype)
+                    # ROBUST VALIDATION: Strict whitelist check for Regression validity
+                    # A column is ONLY valid for regression if it is numeric and NOT a boolean
+                    is_valid_for_regression = is_numeric_dtype(df[target_col]) and not is_bool_dtype(df[target_col])
+                    is_categorical_target = not is_valid_for_regression
                                             
-                    # Dynamic warning if user chooses Regression on a Text/Bool column
+                    # Dynamic warning if user chooses Regression on a non-numeric/boolean target
                     if task_type == "Regression" and is_categorical_target:
                         st.warning(f"⚠️ Column '{target_col}' contains text or categories. Regression requires a continuous numeric target.")
                     
@@ -143,38 +156,54 @@ def show_upload_data():
             with submit_col2:
                 if st.button("✅ Save Configuration & Proceed", type="primary", use_container_width=True):
                     
-                    # FIX: Hard validation to prevent Regression on categorical targets
+                    # ROBUST VALIDATION: Hard block to prevent saving invalid states
                     if task_type == "Regression" and is_categorical_target:
-                        st.error(f"❌ Invalid Task: You cannot use a categorical target column ('{target_col}') for Regression. Please switch to Classification or select a numerical target.")
+                        st.error(f"❌ Invalid Task: You cannot use a categorical/text target column ('{target_col}') for Regression. Please switch to Classification or select a numerical target.")
                     elif len(features) == 0:
-                        st.error("Please select at least one input feature.")
+                        st.error("❌ Please select at least one input feature.")
                     elif target_col in features:
-                        st.error("Target column cannot be in the input features.")
+                        st.error("❌ Target column cannot be included in the input features.")
                     else:
-                        processed_df = df.copy()
-                        if impute_strategy == "Drop rows":
-                            processed_df = processed_df.dropna(subset=features + [target_col]).reset_index(drop=True)
-                        
-                        test_size_map = {"60%": 0.4, "70%": 0.3, "80%": 0.2, "90%": 0.1}
-                        test_size = test_size_map[split_ratio]
-                        
-                        st.session_state.processed_data = processed_df
-                        st.session_state.target_column = target_col
-                        st.session_state.features = features
-                        st.session_state.task_type = task_type
-                        st.session_state.impute_strategy = impute_strategy
-                        st.session_state.encode_strategy = encode_strategy
-                        st.session_state.scale_strategy = scale_strategy
-                        st.session_state.test_size = test_size
-                        st.session_state.random_state = random_state
-                        st.session_state.shuffle = shuffle_data
-                        
-                        st.success("Configuration saved! You can now proceed to the Model Training page.")
+                        try:
+                            processed_df = df.copy()
+                            
+                            if impute_strategy == "Drop rows":
+                                processed_df = processed_df.dropna(subset=features + [target_col]).reset_index(drop=True)
+                            
+                            # ROBUST CHECK: Prevent saving if dropping NAs resulted in an empty dataset
+                            if processed_df.empty:
+                                st.error("❌ Dropping rows with missing values resulted in an empty dataset. Please choose a different 'Missing Values' strategy.")
+                                return
+                            
+                            # Safely map test size
+                            test_size_map = {"60%": 0.4, "70%": 0.3, "80%": 0.2, "90%": 0.1}
+                            test_size = test_size_map.get(split_ratio, 0.2)
+                            
+                            # Save to session state
+                            st.session_state.processed_data = processed_df
+                            st.session_state.target_column = target_col
+                            st.session_state.features = features
+                            st.session_state.task_type = task_type
+                            st.session_state.impute_strategy = impute_strategy
+                            st.session_state.encode_strategy = encode_strategy
+                            st.session_state.scale_strategy = scale_strategy
+                            st.session_state.test_size = test_size
+                            st.session_state.random_state = random_state
+                            st.session_state.shuffle = shuffle_data
+                            
+                            st.success("✅ Configuration saved! You can now proceed to the 'Training Studio' page.")
+                            
+                        except Exception as e:
+                            st.error(f"❌ An error occurred while processing the dataset configuration: {str(e)}")
                     
         except pd.errors.EmptyDataError:
-            st.error("The uploaded CSV file is empty. Please upload a valid dataset.")
+            st.error("❌ The uploaded CSV file is empty. Please upload a dataset with data rows.")
+        except pd.errors.ParserError:
+            st.error("❌ The uploaded file could not be parsed as a valid CSV. Please check the file formatting.")
+        except UnicodeDecodeError:
+            st.error("❌ The uploaded CSV file has an invalid encoding. Please ensure it is saved as UTF-8.")
         except Exception as e:
-            st.error(f"An error occurred while reading the file. Details: {e}")
+            st.error(f"❌ An unexpected error occurred while reading the file. Details: {str(e)}")
             
     else:
         st.info("Awaiting file upload... Please browse or drag and drop a CSV file above.")
