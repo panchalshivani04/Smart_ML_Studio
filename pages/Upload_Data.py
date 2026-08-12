@@ -5,7 +5,7 @@ from utils.preprocessing import detect_task_type
 
 def show_upload_data():
     st.write("")
-    st.title("📂 Data Upload & Preparation")
+    st.title("Data Upload & Preparation")
     st.markdown(
         "<p style='font-size: 1.1rem; color: #666;'>Upload your dataset, explore its health, and configure the preprocessing pipeline.</p>", 
         unsafe_allow_html=True
