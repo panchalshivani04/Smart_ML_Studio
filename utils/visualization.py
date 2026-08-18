@@ -58,9 +58,22 @@ def plot_confusion_matrix(y_true, y_pred):
     fig.update_layout(xaxis_title="Predicted Class", yaxis_title="Actual Class")
     return fig
 
-def plot_roc_curve_binary(y_true, y_prob):
+def plot_roc_curve_binary(y_true, y_prob, pos_label=None):
     # Only applicable for binary classification
-    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+    try:
+        if pos_label is not None:
+            fpr, tpr, thresholds = roc_curve(y_true, y_prob, pos_label=pos_label)
+        elif not pd.api.types.is_numeric_dtype(y_true):
+            unique_labels = list(pd.Series(y_true).unique())
+            pos_label_calc = unique_labels[1] if len(unique_labels) > 1 else unique_labels[0]
+            fpr, tpr, thresholds = roc_curve(y_true, y_prob, pos_label=pos_label_calc)
+        else:
+            fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+    except Exception:
+        # Fallback to factorized numeric binary labels
+        y_true_bin = pd.factorize(y_true)[0]
+        fpr, tpr, thresholds = roc_curve(y_true_bin, y_prob)
+
     roc_auc = auc(fpr, tpr)
     
     fig = px.area(

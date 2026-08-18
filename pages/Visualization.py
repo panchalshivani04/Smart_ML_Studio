@@ -138,13 +138,11 @@ def show_visualization():
                             # Get probability of the positive class
                             y_prob = pipeline.predict_proba(X_test)[:, 1]
                             
-                            # We need to map string labels to binary for roc_curve if they are strings
-                            if y_test.dtype == 'object' or y_test.dtype == 'bool':
-                                y_test_bin = pd.factorize(y_test)[0]
-                            else:
-                                y_test_bin = y_test
+                            # Retrieve the positive class label if available
+                            model_step = pipeline.named_steps['model']
+                            pos_label = model_step.classes_[1] if hasattr(model_step, "classes_") and len(getattr(model_step, "classes_", [])) > 1 else None
                                 
-                            fig_roc = plot_roc_curve_binary(y_test_bin, y_prob)
+                            fig_roc = plot_roc_curve_binary(y_test, y_prob, pos_label=pos_label)
                             st.plotly_chart(fig_roc, use_container_width=True)
                         else:
                             st.info(f"{selected_model} does not support probability predictions required for ROC curves.")
