@@ -52,9 +52,10 @@ def plot_residuals(y_true, y_pred):
 # --- 3. Classification Visualizations ---
 
 def plot_confusion_matrix(y_true, y_pred):
-    cm = confusion_matrix(y_true, y_pred)
-    labels = sorted(list(set(y_true)))
-    fig = px.imshow(cm, text_auto=True, x=labels, y=labels, color_continuous_scale='Blues', title="Confusion Matrix")
+    unique_labels = sorted(list(set(y_true) | set(y_pred)))
+    cm = confusion_matrix(y_true, y_pred, labels=unique_labels)
+    labels_str = [str(lbl) for lbl in unique_labels]
+    fig = px.imshow(cm, text_auto=True, x=labels_str, y=labels_str, color_continuous_scale='Blues', title="Confusion Matrix")
     fig.update_layout(xaxis_title="Predicted Class", yaxis_title="Actual Class")
     return fig
 
