@@ -2,6 +2,12 @@
 
 An interactive **Machine Learning Studio** built with **Python, Streamlit, and Scikit-learn** that enables users to upload datasets, preprocess data, train and compare regression and classification models, tune hyperparameters, visualize performance, and generate predictions through an intuitive no-code interface.
 
+<p align="left">
+  <a href="https://smart-ml-studio.onrender.com">
+    <img src="https://img.shields.io/badge/🌐_Visit_Website-6C63FF?style=for-the-badge" alt="Visit Website"/>
+  </a>
+</p>
+
 ---
 
 ## ✨ Features
